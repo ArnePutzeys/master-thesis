@@ -15,6 +15,7 @@ use std::{
         atomic::{AtomicBool, AtomicUsize, Ordering},
         Mutex,
     },
+    time::{Duration, Instant},
 };
 
 static PROGRESS_BAR: OnceCell<ProgressBar> = OnceCell::new();
@@ -283,8 +284,12 @@ impl JpegState {
     }
 }
 
+static mut DURATIONS_REVOKINGPAGES: Vec<Duration> = Vec::new();
+
 #[cfg(feature = "sgx")]
 mod sgx {
+    use std::time::{Duration, Instant};
+
     use super::*;
     use sgx_step::sgx_step_sys::{
         get_enclave_ssa_gprsgx_adrs, print_enclave_info, register_enclave_info,
@@ -336,7 +341,10 @@ mod sgx {
                     // We can revoke them using a single mprotect call,
                     // but the implementation is abstracted away in libsgxstep,
                     // and could be replaced with more clever PTE hacking.
+                    let instant = Instant::now();
                     let res = unsafe { revoke_pages(pages.start, pages.len()) };
+                    let elapsed = instant.elapsed();
+                    unsafe { DURATIONS_REVOKINGPAGES.push(elapsed) };
                     if res != 0 {
                         Err(AttackError::Mprotect)
                     } else {
@@ -672,6 +680,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
     PROGRESS_BAR.set(progress_bar).unwrap();
 
+    let instant = Instant::now();
     match &args.mode {
         Mode::Trace { vcd } => trace::attack_vcd(vcd, &args)?,
         #[cfg(feature = "sgx")]
@@ -683,6 +692,32 @@ fn main() -> Result<(), Box<dyn Error>> {
             matches!(&args.mode, &Mode::Enclave { .. }),
         )?,
     };
+    println!("Total attack took: {:?}", instant.elapsed());
+
+    unsafe {
+        if !DURATIONS_REVOKINGPAGES.is_empty() {
+            let sum: Duration = DURATIONS_REVOKINGPAGES.iter().sum();
+            let avg = sum / DURATIONS_REVOKINGPAGES.len() as u32;
+            let min = *DURATIONS_REVOKINGPAGES.iter().min().unwrap();
+            let max = *DURATIONS_REVOKINGPAGES.iter().max().unwrap();
+            let variance = DURATIONS_REVOKINGPAGES
+                .iter()
+                .map(|&d| {
+                    let diff = d.as_secs_f64() - avg.as_secs_f64();
+                    diff * diff
+                })
+                .sum::<f64>()
+                / DURATIONS_REVOKINGPAGES.len() as f64;
+            let stddev = variance.sqrt();
+
+            println!("Benchmark results for revoking pages:");
+            println!("  Min: {:?}", min);
+            println!("  Max: {:?}", max);
+            println!("  Avg: {:?}", avg);
+            println!("  Std Dev: {:.6} secs", stddev);
+            println!("  Total: {:?}", sum);
+        }
+    }
 
     Ok(())
 }
