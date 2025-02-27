@@ -78,19 +78,23 @@ impl JpegReconstruct {
         }
     }
 
+    // This method returns the value of a reconstructed pixel for a given color, at (x, y).
     pub fn reconstructed_pixel(&self, color: usize, x: usize, y: usize) -> isize {
         *self.reconstructed_buffer[color % self.num_colors][y]
             .get(x)
             .unwrap_or(&0) as isize
     }
 
+    // Returns the size of the reconstructed image:
     pub fn reconstructed_size(&self) -> [usize; 2] {
         [
+            // Width
             self.reconstructed_buffer[0]
                 .iter()
                 .map(|v| v.len())
                 .max()
                 .unwrap_or(0),
+            // Height
             self.reconstructed_buffer[0].len() - 1,
         ]
     }
@@ -98,7 +102,7 @@ impl JpegReconstruct {
     /// Creates a bitmap `Image` with the reconstruction
     pub fn reconstructed_bitmap(&self) -> Image {
         let [width, height] = self.reconstructed_size();
-        let mut image = Image::new(width as u32, height as u32);
+        let mut image = Image::new(width as u32, height as u32); // Empty Image Object
 
         // Calculate values to normalize the image colors
         let mut buffer = self.reconstruction(JPEG_GRAY);
@@ -127,7 +131,7 @@ impl JpegReconstruct {
         image
     }
 
-    /// Returns the reconstruction buffer
+    /// Returns the reconstruction buffer as a flattened vector
     pub fn reconstruction(&self, color: JpegColor) -> Vec<usize> {
         self.reconstructed_buffer[color.0]
             .iter()
@@ -136,6 +140,9 @@ impl JpegReconstruct {
             .collect()
     }
 
+    // First dimension: Color channels
+    // Second dimension: Rows
+    // Third dimension: Pixels within a row
     pub fn raw_reconstruction(&self) -> &Vec<Vec<Vec<usize>>> {
         &self.reconstructed_buffer
     }
