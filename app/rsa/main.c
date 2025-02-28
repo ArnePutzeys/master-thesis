@@ -4,6 +4,7 @@
 #include <sys/mman.h>
 #include "libsgxstep/pt.h"
 #include "libsgxstep/enclave.h"
+#include "libsgxstep/pt_abstractions.h"
 
 /* SGX untrusted runtime */
 #include <sgx_urts.h>
@@ -28,20 +29,6 @@ int fault_fired = 0;
 void *sq_pt = NULL, *mul_pt = NULL, *modpow_pt = NULL;
 
 uint64_t *pte_sq, *pte_modpow, *pte_mul;
-
-// Simulating mprotect in user space such that we don't have to do a system call
-// Need to make sure pages don't get unmapped -> mlock
-void pte_removeperms(uint64_t *pte_pointer)
-{
-    ASSERT(PRESENT(*pte_pointer));
-    *pte_pointer = MARK_SUPERVISOR(*pte_pointer);
-}
-
-void pte_restoreperms(uint64_t *pte_pointer)
-{
-    ASSERT(PRESENT(*pte_pointer));
-    *pte_pointer = MARK_USER(*pte_pointer);
-}
 
 enum pf_state
 {
