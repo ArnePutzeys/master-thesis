@@ -37,6 +37,10 @@ enum pf_state
     MUL = 2,
 };
 
+// modpow state -> Page 2
+// square state -> Page 3
+// mul state -> Page 5
+
 #define INIT_MASK 0x10000
 uint32_t mask = INIT_MASK;
 uint16_t key = 0;
@@ -45,6 +49,8 @@ int iteration = 0;
 void fault_handler(size_t pagenum)
 {
     void *base_adrs = (pagenum << PT_SHIFT) + get_enclave_base();
+    // info("Page fault on page %d", pagenum);
+    // info("Page fault at address x%" PRIx64, base_adrs);
     enum pf_state state;
     if (base_adrs == sq_pt)
     {
@@ -83,8 +89,11 @@ void fault_handler(size_t pagenum)
     }
 
     /* Execute with minimal access rights */
+
     if (base_adrs == sq_pt)
     {
+        info("Hi %x", get_pte_by_address(base_adrs));
+        info("Hoi %x", pte_sq);
         pte_restoreperms(pte_sq);
     }
     if (base_adrs == mul_pt)
@@ -124,12 +133,12 @@ int main(int argc, char **argv)
 
     /* =========================== START SOLUTION =========================== */
     // Remove access, equivalent to PROT_NONE (However prot_none unmaps the page, does inversion and stuff on top)
-    ASSERT(pte_sq = remap_page_table_level(sq_pt, PTE));
-    ASSERT(pte_mul = remap_page_table_level(mul_pt, PTE));
-    ASSERT(pte_modpow = remap_page_table_level(modpow_pt, PTE));
+    ASSERT(pte_sq = get_pte_by_address(sq_pt));
+    ASSERT(pte_mul = get_pte_by_address(mul_pt));
+    ASSERT(pte_modpow = get_pte_by_address(modpow_pt));
     info("REMAPPING: square_pte at %p; muliply_pte at %p; modpow_pte at %p", pte_sq, pte_mul, pte_modpow);
 
-    pte_removeperms(pte_sq);
+    pte_removeperms(get_pte_by_address(sq_pt));
 
     /* =========================== END SOLUTION =========================== */
 
