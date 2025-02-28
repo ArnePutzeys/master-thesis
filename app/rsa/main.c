@@ -3,6 +3,7 @@
 #include "libsgxstep/pf.h"
 #include <sys/mman.h>
 #include "libsgxstep/pt.h"
+#include "libsgxstep/enclave.h"
 
 /* SGX untrusted runtime */
 #include <sgx_urts.h>
@@ -54,8 +55,9 @@ uint32_t mask = INIT_MASK;
 uint16_t key = 0;
 int iteration = 0;
 
-void fault_handler(void *base_adrs)
+void fault_handler(size_t pagenum)
 {
+    void *base_adrs = (pagenum << PT_SHIFT) + get_enclave_base();
     enum pf_state state;
     if (base_adrs == sq_pt)
     {
