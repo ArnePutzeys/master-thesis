@@ -88,23 +88,7 @@ void fault_handler(size_t pagenum)
         abort();
     }
 
-    /* Execute with minimal access rights */
-
-    if (base_adrs == sq_pt)
-    {
-        info("Hi %x", get_pte_by_address(base_adrs));
-        info("Hoi %x", pte_sq);
-        pte_restoreperms(pte_sq);
-    }
-    if (base_adrs == mul_pt)
-    {
-        pte_restoreperms(pte_mul);
-    }
-
-    if (base_adrs == modpow_pt)
-    {
-        pte_restoreperms(pte_modpow);
-    }
+    pte_restoreperms(get_pte_by_address(base_adrs));
 
     fault_fired++;
 }
