@@ -18,6 +18,8 @@ use std::{
     time::{Duration, Instant},
 };
 
+use nix::libc::{mlock, mlockall, MCL_FUTURE};
+
 static PROGRESS_BAR: OnceCell<ProgressBar> = OnceCell::new();
 
 #[derive(Debug, Clone, Copy)]
@@ -288,13 +290,15 @@ static mut DURATIONS_REVOKINGPAGES: Vec<Duration> = Vec::new();
 
 #[cfg(feature = "sgx")]
 mod sgx {
+    use std::ffi::c_void;
     use std::time::{Duration, Instant};
 
     use super::*;
     use sgx_step::sgx_step_sys::{
-        get_enclave_ssa_gprsgx_adrs, print_enclave_info, register_enclave_info,
-        register_fault_handler, restore_pages, revoke_pages,
+        get_enclave_ssa_gprsgx_adrs, print_enclave_info, pte_restore_pages, pte_revoke_pages,
+        register_enclave_info, register_fault_handler, restore_pages, revoke_pages,
     };
+    use sgx_step::EnclaveRef;
     use sgx_urts_sys::{
         sgx_create_enclave, sgx_destroy_enclave, sgx_enclave_id_t, sgx_launch_token_t,
     };
@@ -342,7 +346,7 @@ mod sgx {
                     // but the implementation is abstracted away in libsgxstep,
                     // and could be replaced with more clever PTE hacking.
                     let instant = Instant::now();
-                    let res = unsafe { revoke_pages(pages.start, pages.len()) };
+                    let res = unsafe { pte_revoke_pages(pages.start, pages.len() + 1) };
                     let elapsed = instant.elapsed();
                     unsafe { DURATIONS_REVOKINGPAGES.push(elapsed) };
                     if res != 0 {
@@ -389,13 +393,13 @@ mod sgx {
             // println!("{:?}", global.working_set);
 
             for page in global.working_set.iter() {
-                if unsafe { restore_pages(*page, 1) } != 0 {
+                if unsafe { pte_restore_pages(*page, 1) } != 0 {
                     panic!("Unable to mprotect");
                 }
             }
         } else {
             // Restore access to the current page
-            if unsafe { restore_pages(page, 1) } != 0 {
+            if unsafe { pte_restore_pages(page, 1) } != 0 {
                 panic!("Unable to mprotect");
             }
         }
@@ -489,6 +493,13 @@ mod sgx {
 
             println!("Created enclave with eid {eid}");
 
+            println!("Calling mlock()");
+            let enc = EnclaveRef::from_raw(sgx_step::EnclaveId::SGX(eid));
+            mlock(
+                enc.base() as usize as *mut c_void,
+                enc.end() as usize - enc.base() as usize,
+            );
+
             register_enclave_info();
             print_enclave_info();
 
@@ -539,6 +550,61 @@ mod sgx {
             args.output.as_ref().map(|o| image.save(o).unwrap());
 
             // print_enclave_info();
+        })
+    }
+
+    pub fn dry_run_enclave(
+        enclave: &str,
+        args: &Args,
+        input_size: u64,
+        output_size: u64,
+        use_fault_handler: bool,
+    ) -> Result<(), Box<dyn Error>> {
+        let mut token: sgx_launch_token_t = [0; 1024];
+        let mut updated = 0;
+        let mut eid: sgx_enclave_id_t = 0;
+        Ok(unsafe {
+            // Create the enclave
+            let enclave_so = CString::new(enclave)?;
+            println!(
+                "Creating enclave... result: {:x}",
+                sgx_create_enclave(
+                    enclave_so.as_ptr(),
+                    1,
+                    &mut token,
+                    &mut updated,
+                    &mut eid,
+                    null_mut(),
+                )
+            );
+
+            println!("Created enclave with eid {eid}");
+
+            register_enclave_info();
+            print_enclave_info();
+
+            // Initialize global state
+            dbg!(get_enclave_ssa_gprsgx_adrs());
+
+            // Load the libjpeg image into the enclave
+            let input = CString::new(args.image.as_str())?;
+            assert!(
+                load_image(
+                    eid,
+                    input.as_ptr(),
+                    input_size as usize,
+                    output_size as usize
+                ) == 0
+            );
+
+            // Call vulnerable decompression code
+            assert!(decompress_image(eid) == 0);
+
+            // Free the image
+            assert!(free_image(eid) == 0);
+
+            // Destroy the enclave
+            sgx_destroy_enclave(eid);
         })
     }
 }
@@ -679,6 +745,22 @@ fn main() -> Result<(), Box<dyn Error>> {
         .progress_chars("##-"),
     );
     PROGRESS_BAR.set(progress_bar).unwrap();
+
+    // Dry run
+    unsafe {
+        mlockall(MCL_FUTURE);
+    }
+    match &args.mode {
+        Mode::Trace { vcd } => trace::attack_vcd(vcd, &args)?,
+        #[cfg(feature = "sgx")]
+        Mode::Enclave { enclave } | Mode::Ocalls { enclave } => sgx::dry_run_enclave(
+            enclave,
+            &args,
+            input_size,
+            output_size,
+            matches!(&args.mode, &Mode::Enclave { .. }),
+        )?,
+    };
 
     let instant = Instant::now();
     match &args.mode {
