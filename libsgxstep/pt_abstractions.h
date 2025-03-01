@@ -6,11 +6,13 @@
 
 // Removes the permissions of a Page Table Entry
 // Concretely: Unsets the User bit.
-void pte_removeperms(uint64_t *pte_pointer);
+// Returns 1 if successful, -1 otherwise
+int pte_removeperms(uint64_t *pte_pointer);
 
 // Restores the permissions of a Page Table Entry
 // Concretely: Sets the User bit.
-void pte_restoreperms(uint64_t *pte_pointer);
+// Returns 1 if successful, -1 otherwise
+int pte_restoreperms(uint64_t *pte_pointer);
 
 int pte_revoke_pages(size_t page, size_t num_pages);
 
