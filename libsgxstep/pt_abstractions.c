@@ -47,11 +47,29 @@ uint64_t *get_pte_by_page(size_t page)
 
     if (!pte_cache[page])
     {
-        info("Entry not in page cache yet, adding it");
+        info("PTE for page %d not in page cache yet, adding it", page);
         void *virt_addr = pagenum_to_virt(page);
+        info("Page %d translated to virtual address %p. Enclave Base: %p", page, virt_addr, get_enclave_base());
+
+        uint8_t buffer[4096];
+        info("Reading contents of page with edbgrd");
+
+        edbgrd(virt_addr, buffer, 4096);
+
+        // Print buffer in hex format
+        printf("Page contents:\n");
+        for (int j = 0; j < 128; j++)
+        {
+            if (j % 16 == 0)
+                printf("\n");
+            printf("%02X ", buffer[j]);
+        }
+        printf("\n");
 
         void *pte = remap_page_table_level(virt_addr, PTE);
+        info("PTE: %p for page %d", pte, page);
 
+        print_page_table(virt_addr);
         // info("Virt Addr: %p, PTE: %p", virt_addr, pte);
         // print_pte_adrs(virt_addr);
         //  print_pte(pte);
