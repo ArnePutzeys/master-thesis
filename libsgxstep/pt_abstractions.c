@@ -92,12 +92,12 @@ int pte_removeperms_PFN(size_t pagenumber)
     {
         // If the access has already been revoked, do not shift further.
         // Otherwise the internal state of this module is invalid.
-        return;
+        return -1;
     }
     uint64_t *pte = get_pte_by_page(pagenumber);
 
     if (!pte)
-        return; // Error retrieving PTE
+        return -1; // Error retrieving PTE
 
     uint64_t phys_addr = *pte & PT_PHYS_MASK;
 
@@ -114,12 +114,12 @@ int pte_restoreperms_PFN(size_t pagenumber)
 {
     if (!is_page_shifted(pagenumber))
     {
-        return;
+        return -1;
     }
     uint64_t *pte = get_pte_by_page(pagenumber);
 
     if (!pte)
-        return; // Error retrieving PTE
+        return -1; // Error retrieving PTE
 
     uint64_t old_phys_addr = *pte & PT_PHYS_MASK;
 
@@ -188,7 +188,7 @@ uint64_t *get_pte_by_page(size_t page)
     {
         void *virt_addr = pagenum_to_virt(page);
 
-        if (!(get_enclave_base() < virt_addr < get_enclave_limit()))
+        if (!(get_enclave_base() < virt_addr && virt_addr < get_enclave_limit()))
         {
             debug("Page %lu out of range, not part of the enclave", page);
             return NULL;
