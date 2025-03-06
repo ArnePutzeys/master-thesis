@@ -30,9 +30,9 @@
 #include <string.h>
 
 /* Custom AEP get/set functions from patched SGX SDK urts. */
-void* sgx_get_aep(void);
-void sgx_set_aep(void* aep);
-void* sgx_get_tcs(void);
+void *sgx_get_aep(void);
+void sgx_set_aep(void *aep);
+void *sgx_get_tcs(void);
 
 /* See aep_trampoline.S to see how these are used. */
 extern void sgx_step_aep_trampoline(void);
@@ -61,29 +61,29 @@ void register_enclave_info(void)
     int is_enclave = 0, prev_is_enclave = 0, is_isgx, is_kern;
     memset(&victim, 0x0, sizeof(victim));
 
-    /* Parse /proc/self/maps to detect any enclaves mapped in the address space.
-     * Expected format: "start-end perms offset dev inode optional_pathname"
-     * For documentation of /proc/pid/maps, see `man 5 proc`.
-     *
-     * NOTES: - victim.tcs is set by the patched untrusted runtime on first
-     *          enclave entry (e.g., as part of sgx_create_enclave)
-     *        - enclave mappings are expected to be backed by a recognized SGX
-     *          driver (i.e., pathname /dev/isgx or /dev/sgx_enclave)
-     *        - only supports a single enclave that is expected to be
-     *          contiguously mapped in the address space
-     */
-    #if LIBSGXSTEP_DEBUG
-        debug("cat /proc/self/maps");
-        char command[256];
-        sprintf(command, "cat /proc/%d/maps", getpid());
-        system(command);
-        debug("------");
-    #endif
+/* Parse /proc/self/maps to detect any enclaves mapped in the address space.
+ * Expected format: "start-end perms offset dev inode optional_pathname"
+ * For documentation of /proc/pid/maps, see `man 5 proc`.
+ *
+ * NOTES: - victim.tcs is set by the patched untrusted runtime on first
+ *          enclave entry (e.g., as part of sgx_create_enclave)
+ *        - enclave mappings are expected to be backed by a recognized SGX
+ *          driver (i.e., pathname /dev/isgx or /dev/sgx_enclave)
+ *        - only supports a single enclave that is expected to be
+ *          contiguously mapped in the address space
+ */
+#if LIBSGXSTEP_DEBUG
+    debug("cat /proc/self/maps");
+    char command[256];
+    sprintf(command, "cat /proc/%d/maps", getpid());
+    system(command);
+    debug("------");
+#endif
     ASSERT((fd_self_maps = fopen("/proc/self/maps", "r")) >= 0);
     while (fscanf(fd_self_maps, "%lx-%lx %*c%*c%c%*c %*x %*x:%*x %*[0-9 ]%m[^\n]",
                   &start, &end, &exec, &pathname) > 0)
     {
-        debug("%p - %p %c %s", (void*) start, (void*) end, exec, pathname);
+        debug("%p - %p %c %s", (void *)start, (void *)end, exec, pathname);
         is_isgx = (pathname != NULL) && strstr(pathname, "/dev/isgx") != NULL;
         is_kern = (pathname != NULL) && strstr(pathname, "/dev/sgx_enclave") != NULL;
         is_enclave = is_isgx || is_kern;
@@ -92,14 +92,14 @@ void register_enclave_info(void)
         {
             if (!victim.drv)
             {
-                debug("Found %s enclave at %p in /proc/self/maps", pathname, (void*) start);
+                debug("Found %s enclave at %p in /proc/self/maps", pathname, (void *)start);
 
-                victim.base = (uint64_t) start;
+                victim.base = (uint64_t)start;
                 victim.drv = is_isgx ? "/dev/isgx" : "/dev/sgx_enclave";
             }
             if (exec == 'x')
             {
-                debug("Found enclave executable range [%p,%p]", (void*) start, (void*) end);
+                debug("Found enclave executable range [%p,%p]", (void *)start, (void *)end);
                 WARN_ON(victim.exec_limit != 0, "enclave contains >1 executable range");
                 victim.exec_base = start;
                 victim.exec_limit = end;
@@ -107,7 +107,7 @@ void register_enclave_info(void)
         }
         else if (prev_is_enclave && !is_enclave)
         {
-            victim.limit = (uint64_t) prev_end;
+            victim.limit = (uint64_t)prev_end;
         }
 
         if (pathname != NULL)
@@ -119,50 +119,57 @@ void register_enclave_info(void)
         prev_is_enclave = is_enclave;
         prev_end = end;
     }
-    ASSERT( victim.drv && "no enclave found in /proc/self/maps");
+    ASSERT(victim.drv && "no enclave found in /proc/self/maps");
 
-    victim.tcs = (uint64_t) sgx_get_tcs();
-    victim.aep = (uint64_t) sgx_get_aep();
-    info("tcs at %lx; aep at %lx", victim.tcs, victim.aep);
-    ASSERT( victim.tcs >= victim.base && victim.tcs < victim.limit);
+    victim.tcs = (uint64_t)sgx_get_tcs();
+    victim.aep = (uint64_t)sgx_get_aep();
+    // info("tcs at %lx; aep at %lx", victim.tcs, victim.aep);
+    ASSERT(victim.tcs >= victim.base && victim.tcs < victim.limit);
     ioctl_init = 1;
 }
 
 void *get_enclave_base(void)
 {
-    if (!ioctl_init) register_enclave_info();
+    if (!ioctl_init)
+        register_enclave_info();
 
-    return (void*)((uintptr_t) victim.base);
+    return (void *)((uintptr_t)victim.base);
 }
 
 void *get_enclave_limit(void)
 {
-    if (!ioctl_init) register_enclave_info();
+    if (!ioctl_init)
+        register_enclave_info();
 
-    return (void*)((uintptr_t) victim.limit);
+    return (void *)((uintptr_t)victim.limit);
 }
 
 char *get_enclave_drv(void)
 {
-    if (!ioctl_init) register_enclave_info();
+    if (!ioctl_init)
+        register_enclave_info();
 
     return victim.drv;
 }
 
 int get_enclave_size(void)
 {
-    if (!ioctl_init) register_enclave_info();
+    if (!ioctl_init)
+        register_enclave_info();
 
-    return (int) (victim.limit - victim.base);
+    return (int)(victim.limit - victim.base);
 }
 
 int get_enclave_exec_range(uint64_t *start, uint64_t *end)
 {
-    if (!ioctl_init) register_enclave_info();
-    ASSERT( victim.exec_base && victim.exec_limit);
+    if (!ioctl_init)
+        register_enclave_info();
+    ASSERT(victim.exec_base && victim.exec_limit);
 
-    if (start) *start = victim.exec_base;
-    if (end) *end = victim.exec_limit;
+    if (start)
+        *start = victim.exec_base;
+    if (end)
+        *end = victim.exec_limit;
     return (victim.exec_limit - victim.exec_base) / PAGE_SIZE_4KiB;
 }
 
@@ -170,7 +177,7 @@ int get_enclave_exec_range(uint64_t *start, uint64_t *end)
 uint64_t **enclave_exec_ptes = NULL;
 size_t enclave_exec_ptes_len = 0;
 
-#define ENCLAVE_EXEC_NB2ADDR(nb) ((void*) (victim.exec_base + nb*PAGE_SIZE_4KiB))
+#define ENCLAVE_EXEC_NB2ADDR(nb) ((void *)(victim.exec_base + nb * PAGE_SIZE_4KiB))
 
 static void alloc_enclave_exec_ptes(void)
 {
@@ -178,11 +185,11 @@ static void alloc_enclave_exec_ptes(void)
     uint64_t start, end;
     uint64_t *pte;
 
-    ASSERT( !enclave_exec_ptes);
+    ASSERT(!enclave_exec_ptes);
     sz = get_enclave_exec_range(&start, &end);
     enclave_exec_ptes_len = sz;
-    enclave_exec_ptes = malloc(sz * sizeof(uint64_t*));
-    ASSERT( enclave_exec_ptes);
+    enclave_exec_ptes = malloc(sz * sizeof(uint64_t *));
+    ASSERT(enclave_exec_ptes);
 
     for (i = 0; i < enclave_exec_ptes_len; i++)
     {
@@ -216,12 +223,12 @@ void mark_enclave_exec_not_accessed(void)
 
 uint64_t is_enclave_exec_accessed(void)
 {
-    ASSERT (enclave_exec_ptes && "first call mark_enclave_exec_not_accessed");
+    ASSERT(enclave_exec_ptes && "first call mark_enclave_exec_not_accessed");
 
     for (int i = 0; i < enclave_exec_ptes_len; i++)
     {
         if (PRESENT(*enclave_exec_ptes[i]) && ACCESSED(*enclave_exec_ptes[i]))
-            return (uint64_t) ENCLAVE_EXEC_NB2ADDR(i);
+            return (uint64_t)ENCLAVE_EXEC_NB2ADDR(i);
     }
     return 0;
 }
@@ -234,7 +241,7 @@ void dump_enclave_exec_pages(void)
     for (int i = 0; i < enclave_exec_ptes_len; i++)
     {
         info("%09lx: P=%ld; A=%ld", ENCLAVE_EXEC_NB2ADDR(i) - get_enclave_base(),
-                PRESENT(*enclave_exec_ptes[i]), ACCESSED(*enclave_exec_ptes[i]));
+             PRESENT(*enclave_exec_ptes[i]), ACCESSED(*enclave_exec_ptes[i]));
     }
 }
 /*
@@ -247,7 +254,7 @@ void dump_enclave_exec_pages(void)
  * Returns the number of bytes successfully read/written, or a value <0 for
  * production enclaves.
  */
-int edbgrdwr(void *adrs, void* res, int len, int write)
+int edbgrdwr(void *adrs, void *res, int len, int write)
 {
     int rv;
     if (fd_self_mem < 0)
@@ -256,17 +263,17 @@ int edbgrdwr(void *adrs, void* res, int len, int write)
     }
 
     if (!write)
-        rv = pread(fd_self_mem, res, len, (off_t) adrs);
+        rv = pread(fd_self_mem, res, len, (off_t)adrs);
     else
-        rv = pwrite(fd_self_mem, res, len, (off_t) adrs);
+        rv = pwrite(fd_self_mem, res, len, (off_t)adrs);
 
     debug("edbg%s at %p; len=%d; rv=%d", write ? "wr" : "rd", adrs, len, rv);
-    #if LIBSGXSTEP_DEBUG
-        printf("\tbuf = ");
-        dump_hex(res, rv);
-    #endif
+#if LIBSGXSTEP_DEBUG
+    printf("\tbuf = ");
+    dump_hex(res, rv);
+#endif
 
-    //ASSERT(rv >= 0);
+    // ASSERT(rv >= 0);
     return rv;
 }
 
@@ -285,7 +292,7 @@ uint64_t edbgrd_ssa_gprsgx(int gprsgx_field_offset)
     return ret;
 }
 
-void* get_enclave_ssa_gprsgx_adrs(void)
+void *get_enclave_ssa_gprsgx_adrs(void)
 {
     uint64_t ossa = 0x0;
     uint32_t cssa = 0x0;
@@ -296,7 +303,7 @@ void* get_enclave_ssa_gprsgx_adrs(void)
     return get_enclave_base() + ossa + (cssa * SGX_SSAFRAMESIZE) - SGX_GPRSGX_SIZE;
 }
 
-void set_debug_optin(void) 
+void set_debug_optin(void)
 {
     void *tcs_addr = sgx_get_tcs();
     uint64_t flags;
@@ -309,19 +316,19 @@ void print_enclave_info(void)
 {
     uint64_t read = 0xff;
 
-    printf( "==== Victim Enclave ====\n" );
-    printf( "    Driver: %s\n", get_enclave_drv());
-    printf( "    Base:   %p\n", get_enclave_base() );
-    printf( "    Limit:  %p\n", get_enclave_limit());
-    printf( "    Size:   %d\n", get_enclave_size() );
-    printf( "    Exec:   %d pages\n", get_enclave_exec_range(NULL,NULL));
-    printf( "    TCS:    %p\n", sgx_get_tcs() );
-    printf( "    SSA:    %p\n", get_enclave_ssa_gprsgx_adrs() );
-    printf( "    AEP:    %p\n", sgx_get_aep() );
+    printf("==== Victim Enclave ====\n");
+    printf("    Driver: %s\n", get_enclave_drv());
+    printf("    Base:   %p\n", get_enclave_base());
+    printf("    Limit:  %p\n", get_enclave_limit());
+    printf("    Size:   %d\n", get_enclave_size());
+    printf("    Exec:   %d pages\n", get_enclave_exec_range(NULL, NULL));
+    printf("    TCS:    %p\n", sgx_get_tcs());
+    printf("    SSA:    %p\n", get_enclave_ssa_gprsgx_adrs());
+    printf("    AEP:    %p\n", sgx_get_aep());
 
     /* First 8 bytes of TCS must be zero */
-    int rv = edbgrd( sgx_get_tcs(), &read, 8);
-    printf( "    EDBGRD: %s\n", rv < 0 ? "production" : "debug");
+    int rv = edbgrd(sgx_get_tcs(), &read, 8);
+    printf("    EDBGRD: %s\n", rv < 0 ? "production" : "debug");
 }
 
 void dump_gprsgx_region(gprsgx_region_t *gprsgx_region)

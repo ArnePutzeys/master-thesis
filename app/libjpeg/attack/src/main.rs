@@ -110,7 +110,7 @@ impl JpegReconstruct {
         buffer.sort();
         let median = buffer[buffer.len() / 2];
         let min = self.min_data as isize;
-        println!("min: {}, median: {}, max: {}", min, median, self.max_data);
+        //println!("min: {}, median: {}, max: {}", min, median, self.max_data);
         let scale = 255. / ((self.max_data as isize - min) as f64);
 
         for x in 0..width {
@@ -165,7 +165,7 @@ impl JpegReconstruct {
         self.min_data = self.min_data.min(num_data);
         self.reconstructed_buffer[self.current_color][self.current_row as usize].push(num_data);
         self.current_color = (self.current_color + 1) % self.num_colors;
-        PROGRESS_BAR.get().unwrap().inc(1);
+        //PROGRESS_BAR.get().unwrap().inc(1);
     }
 
     /// Called to notify `JpegReconstruct` of a state transition
@@ -284,8 +284,6 @@ impl JpegState {
     }
 }
 
-static mut DURATIONS_REVOKINGPAGES: Vec<Duration> = Vec::new();
-
 #[cfg(feature = "sgx")]
 mod sgx {
     use std::time::{Duration, Instant};
@@ -344,7 +342,6 @@ mod sgx {
                     let instant = Instant::now();
                     let res = unsafe { pte_revoke_pages(pages.start, pages.len()) };
                     let elapsed = instant.elapsed();
-                    unsafe { DURATIONS_REVOKINGPAGES.push(elapsed) };
                     if res != 0 {
                         Err(AttackError::Mprotect)
                     } else {
@@ -475,26 +472,35 @@ mod sgx {
         Ok(unsafe {
             // Create the enclave
             let enclave_so = CString::new(enclave)?;
-            println!(
-                "Creating enclave... result: {:x}",
-                sgx_create_enclave(
-                    enclave_so.as_ptr(),
-                    1,
-                    &mut token,
-                    &mut updated,
-                    &mut eid,
-                    null_mut(),
-                )
+            // println!(
+            //     "Creating enclave... result: {:x}",
+            //     sgx_create_enclave(
+            //         enclave_so.as_ptr(),
+            //         1,
+            //         &mut token,
+            //         &mut updated,
+            //         &mut eid,
+            //         null_mut(),
+            //     )
+            // );
+
+            sgx_create_enclave(
+                enclave_so.as_ptr(),
+                1,
+                &mut token,
+                &mut updated,
+                &mut eid,
+                null_mut(),
             );
 
-            println!("Created enclave with eid {eid}");
+            // println!("Created enclave with eid {eid}");
 
             register_enclave_info();
-            print_enclave_info();
+            //print_enclave_info();
 
             // Initialize global state
             let mut data = GlobalState::new(args.color);
-            dbg!(get_enclave_ssa_gprsgx_adrs());
+            // dbg!(get_enclave_ssa_gprsgx_adrs());
 
             // Load the libjpeg image into the enclave
             let input = CString::new(args.image.as_str())?;
@@ -528,15 +534,15 @@ mod sgx {
             sgx_destroy_enclave(eid);
 
             // Save the reconstructed image
-            let data = GLOBAL_STATE.get().unwrap().lock().unwrap();
-            args.raw_output.as_ref().map(|o| {
-                std::fs::write(
-                    o,
-                    serde_json::to_string_pretty(data.reconstruct.raw_reconstruction()).unwrap(),
-                )
-            });
-            let image = data.reconstruct.reconstructed_bitmap();
-            args.output.as_ref().map(|o| image.save(o).unwrap());
+            // let data = GLOBAL_STATE.get().unwrap().lock().unwrap();
+            // args.raw_output.as_ref().map(|o| {
+            //     std::fs::write(
+            //         o,
+            //         serde_json::to_string_pretty(data.reconstruct.raw_reconstruction()).unwrap(),
+            //     )
+            // });
+            // let image = data.reconstruct.reconstructed_bitmap();
+            // args.output.as_ref().map(|o| image.save(o).unwrap());
 
             // print_enclave_info();
         })
@@ -670,15 +676,15 @@ fn main() -> Result<(), Box<dyn Error>> {
     if args.color {
         num_blocks *= 3;
     }
-    let progress_bar = ProgressBar::new(num_blocks as u64);
-    progress_bar.set_style(
-        ProgressStyle::with_template(
-            "[{elapsed_precise}] {wide_bar} {pos:>7}/{len:7} ETA: [{eta_precise}] ",
-        )
-        .unwrap()
-        .progress_chars("##-"),
-    );
-    PROGRESS_BAR.set(progress_bar).unwrap();
+    // let progress_bar = ProgressBar::new(num_blocks as u64);
+    // progress_bar.set_style(
+    //     ProgressStyle::with_template(
+    //         "[{elapsed_precise}] {wide_bar} {pos:>7}/{len:7} ETA: [{eta_precise}] ",
+    //     )
+    //     .unwrap()
+    //     .progress_chars("##-"),
+    // );
+    // PROGRESS_BAR.set(progress_bar).unwrap();
 
     let instant = Instant::now();
     match &args.mode {
@@ -693,31 +699,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         )?,
     };
     println!("Total attack took: {:?}", instant.elapsed());
-
-    unsafe {
-        if !DURATIONS_REVOKINGPAGES.is_empty() {
-            let sum: Duration = DURATIONS_REVOKINGPAGES.iter().sum();
-            let avg = sum / DURATIONS_REVOKINGPAGES.len() as u32;
-            let min = *DURATIONS_REVOKINGPAGES.iter().min().unwrap();
-            let max = *DURATIONS_REVOKINGPAGES.iter().max().unwrap();
-            let variance = DURATIONS_REVOKINGPAGES
-                .iter()
-                .map(|&d| {
-                    let diff = d.as_secs_f64() - avg.as_secs_f64();
-                    diff * diff
-                })
-                .sum::<f64>()
-                / DURATIONS_REVOKINGPAGES.len() as f64;
-            let stddev = variance.sqrt();
-
-            println!("Benchmark results for revoking pages:");
-            println!("  Min: {:?}", min);
-            println!("  Max: {:?}", max);
-            println!("  Avg: {:?}", avg);
-            println!("  Std Dev: {:.6} secs", stddev);
-            println!("  Total: {:?}", sum);
-        }
-    }
 
     Ok(())
 }

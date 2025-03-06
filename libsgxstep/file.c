@@ -27,8 +27,8 @@ int file_read_offset(const char *path, uint8_t *buf, int len, off_t offset)
 {
     int rv, fd;
 
-    libsgxstep_info("reading buffer from '%s' (size=%d)", path, len);
-    ASSERT( (fd = open(path, O_RDONLY)) >= 0 );
+    // libsgxstep_info("reading buffer from '%s' (size=%d)", path, len);
+    ASSERT((fd = open(path, O_RDONLY)) >= 0);
     rv = pread(fd, buf, len, offset);
     close(fd);
 
@@ -44,7 +44,7 @@ void file_creat(const char *path)
 {
     int fd;
 
-    ASSERT( (fd = creat(path, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH )) >= 0 );
+    ASSERT((fd = creat(path, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH)) >= 0);
     close(fd);
 }
 
@@ -53,7 +53,7 @@ int file_write_offset(const char *path, uint8_t *buf, int len, off_t offset)
     int rv, fd;
 
     libsgxstep_info("writing buffer to '%s' (size=%d)", path, len);
-    ASSERT( (fd = open(path, O_WRONLY)) >= 0 );
+    ASSERT((fd = open(path, O_WRONLY)) >= 0);
     rv = pwrite(fd, buf, len, offset);
     close(fd);
 
@@ -70,8 +70,8 @@ int file_read_int(const char *path, int *data)
     int rv;
     FILE *f;
 
-    ASSERT( (f = fopen(path, "r")) );
-    ASSERT( (rv = fscanf(f, "%i", data)) == 1);
+    ASSERT((f = fopen(path, "r")));
+    ASSERT((rv = fscanf(f, "%i", data)) == 1);
     fclose(f);
 
     return rv;
@@ -82,7 +82,7 @@ int file_write_int(const char *path, int data)
     int rv;
     FILE *f;
 
-    ASSERT( (f = fopen(path, "w")) );
+    ASSERT((f = fopen(path, "w")));
     rv = fprintf(f, "%i", data);
     fclose(f);
 
