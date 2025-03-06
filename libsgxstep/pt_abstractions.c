@@ -162,12 +162,6 @@ static inline void *pagenum_to_virt(size_t page)
     // return (size_t)get_enclave_base() + page * PAGE_SIZE_4KiB;
 }
 
-// Converts a virtual address into the corresponding page number
-static inline size_t virt_to_pagenum(void *virt)
-{
-    return ((size_t)virt - (size_t)get_enclave_base()) >> PT_SHIFT;
-}
-
 uint64_t *get_pte_by_page(size_t page)
 {
     if (page >= MAX_PAGES)
