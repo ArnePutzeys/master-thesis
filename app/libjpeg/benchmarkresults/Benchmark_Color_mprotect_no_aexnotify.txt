@@ -1,0 +1,103 @@
+Ran on 7 March 2025, late afternoon
+Without PTE
+
+Iteration 1 for image testimg.jpg
+Total attack took: 3.689678046s
+Iteration 2 for image testimg.jpg
+Total attack took: 3.636352487s
+Iteration 3 for image testimg.jpg
+Total attack took: 3.704747207s
+Iteration 4 for image testimg.jpg
+Total attack took: 3.67931002s
+Iteration 5 for image testimg.jpg
+Total attack took: 3.656311537s
+Iteration 6 for image testimg.jpg
+Total attack took: 3.660992537s
+Iteration 7 for image testimg.jpg
+Total attack took: 3.691542026s
+Iteration 8 for image testimg.jpg
+Total attack took: 3.709220986s
+Iteration 9 for image testimg.jpg
+Total attack took: 3.665682626s
+Iteration 10 for image testimg.jpg
+Total attack took: 3.681735129s
+Iteration 1 for image birds.jpg
+Total attack took: 1715.875781922s
+Iteration 2 for image birds.jpg
+Total attack took: 1711.857457784s
+Iteration 3 for image birds.jpg
+Total attack took: 1711.363118265s
+Iteration 4 for image birds.jpg
+Total attack took: 1712.426735551s
+Iteration 5 for image birds.jpg
+Total attack took: 1716.301294019s
+Iteration 6 for image birds.jpg
+Total attack took: 1711.392796418s
+Iteration 7 for image birds.jpg
+Total attack took: 1769.638790186s
+Iteration 8 for image birds.jpg
+Total attack took: 1705.418643548s
+Iteration 9 for image birds.jpg
+Total attack took: 1734.859163136s
+Iteration 10 for image birds.jpg
+Total attack took: 1769.72494066s
+Iteration 1 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 2 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 3 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 4 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 5 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 6 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 7 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 8 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 9 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 10 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 1 for image SIGSAC_logo_308.jpg
+Total attack took: 472.23860125s
+Iteration 2 for image SIGSAC_logo_308.jpg
+Total attack took: 482.905040854s
+Iteration 3 for image SIGSAC_logo_308.jpg
+Total attack took: 485.928149291s
+Iteration 4 for image SIGSAC_logo_308.jpg
+Total attack took: 469.01903256s
+Iteration 5 for image SIGSAC_logo_308.jpg
+Total attack took: 488.169280319s
+Iteration 6 for image SIGSAC_logo_308.jpg
+Total attack took: 469.670598944s
+Iteration 7 for image SIGSAC_logo_308.jpg
+Total attack took: 489.580113493s
+Iteration 8 for image SIGSAC_logo_308.jpg
+Total attack took: 469.11402141s
+Iteration 9 for image SIGSAC_logo_308.jpg
+Total attack took: 473.863273396s
+Iteration 10 for image SIGSAC_logo_308.jpg
+Total attack took: 487.344116388s
+Iteration 1 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 4374.017940108s
+Iteration 2 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 4473.1795322s
+Iteration 3 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 4394.847393757s
+Iteration 4 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 4381.998633157s
+Iteration 5 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 4382.731966053s
+Iteration 6 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 4408.813539787s
+Iteration 7 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 4395.207144789s
+Iteration 8 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 4470.661958459s
+Iteration 9 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 4378.557299773s
+Iteration 10 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 4512.586136113s
