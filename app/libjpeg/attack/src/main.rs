@@ -339,9 +339,7 @@ mod sgx {
                     // We can revoke them using a single mprotect call,
                     // but the implementation is abstracted away in libsgxstep,
                     // and could be replaced with more clever PTE hacking.
-                    let instant = Instant::now();
                     let res = unsafe { pte_revoke_pages(pages.start, pages.len()) };
-                    let elapsed = instant.elapsed();
                     if res != 0 {
                         Err(AttackError::Mprotect)
                     } else {
@@ -524,8 +522,12 @@ mod sgx {
 
             GLOBAL_STATE.set(Mutex::new(data)).unwrap();
 
+            let instant = Instant::now();
+
             // Call vulnerable decompression code
             assert!(decompress_image(eid) == 0);
+
+            println!("Total attack took: {:?}", instant.elapsed());
 
             // Free the image
             assert!(free_image(eid) == 0);
@@ -686,7 +688,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     // );
     // PROGRESS_BAR.set(progress_bar).unwrap();
 
-    let instant = Instant::now();
     match &args.mode {
         Mode::Trace { vcd } => trace::attack_vcd(vcd, &args)?,
         #[cfg(feature = "sgx")]
@@ -698,7 +699,6 @@ fn main() -> Result<(), Box<dyn Error>> {
             matches!(&args.mode, &Mode::Enclave { .. }),
         )?,
     };
-    println!("Total attack took: {:?}", instant.elapsed());
 
     Ok(())
 }
