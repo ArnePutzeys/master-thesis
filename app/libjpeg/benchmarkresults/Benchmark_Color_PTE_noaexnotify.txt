@@ -1,0 +1,80 @@
+Iteration 1 for image testimg.jpg
+Total attack took: 1.933802708s
+Iteration 2 for image testimg.jpg
+Total attack took: 1.954619183s
+Iteration 3 for image testimg.jpg
+Total attack took: 1.943391597s
+Iteration 4 for image testimg.jpg
+Total attack took: 1.938636521s
+Iteration 5 for image testimg.jpg
+Total attack took: 1.973688242s
+Iteration 6 for image testimg.jpg
+Total attack took: 1.946330209s
+Iteration 7 for image testimg.jpg
+Total attack took: 2.066200344s
+Iteration 8 for image testimg.jpg
+Total attack took: 1.964395892s
+Iteration 9 for image testimg.jpg
+Total attack took: 2.062401409s
+Iteration 10 for image testimg.jpg
+Total attack took: 1.943897625s
+Iteration 1 for image birds.jpg
+Total attack took: 273.06314355s
+Iteration 2 for image birds.jpg
+Total attack took: 280.515301523s
+Iteration 3 for image birds.jpg
+Total attack took: 275.418607116s
+Iteration 4 for image birds.jpg
+Total attack took: 276.452903375s
+Iteration 5 for image birds.jpg
+Total attack took: 274.89000957s
+Iteration 6 for image birds.jpg
+Total attack took: 282.730070668s
+Iteration 7 for image birds.jpg
+Total attack took: 274.74239203s
+Iteration 8 for image birds.jpg
+Total attack took: 275.703510849s
+Iteration 9 for image birds.jpg
+Total attack took: 274.30755238s
+Iteration 10 for image birds.jpg
+Total attack took: 284.617110297s
+Iteration 1 for image SIGSAC_logo_308.jpg
+Total attack took: 116.756154834s
+Iteration 2 for image SIGSAC_logo_308.jpg
+Total attack took: 116.259739056s
+Iteration 3 for image SIGSAC_logo_308.jpg
+Total attack took: 116.402733779s
+Iteration 4 for image SIGSAC_logo_308.jpg
+Total attack took: 116.864752335s
+Iteration 5 for image SIGSAC_logo_308.jpg
+Total attack took: 116.754348333s
+Iteration 6 for image SIGSAC_logo_308.jpg
+Total attack took: 116.10340588s
+Iteration 7 for image SIGSAC_logo_308.jpg
+Total attack took: 116.598624007s
+Iteration 8 for image SIGSAC_logo_308.jpg
+Total attack took: 116.572194827s
+Iteration 9 for image SIGSAC_logo_308.jpg
+Total attack took: 116.801949655s
+Iteration 10 for image SIGSAC_logo_308.jpg
+Total attack took: 116.864506046s
+Iteration 1 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 457.718819735s
+Iteration 2 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 463.719754481s
+Iteration 3 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 463.242157953s
+Iteration 4 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 462.912088446s
+Iteration 5 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 461.765165291s
+Iteration 6 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 462.647395085s
+Iteration 7 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 467.276632113s
+Iteration 8 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 461.83170081s
+Iteration 9 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 463.591148992s
+Iteration 10 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 461.700040529s
