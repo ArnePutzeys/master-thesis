@@ -40,14 +40,15 @@ __pf_irq_handler:
     # Check if the SGX bit (Bit 15) is set
     # need to save the rflags register as well
     test $0x8000, %rax
-    # jnz 1f
+    jnz 1f
+
+    mov $0, __pf_irq_debugreg(%rip)
 
     # Restore rflags
     mov __pf_irq_rflags(%rip), %rax
     push %rax
     popfq
 
-    
     # Restore registers
     mov __pf_irq_rax(%rip), %rax
     mov __pf_irq_rbx(%rip), %rbx
@@ -58,6 +59,7 @@ __pf_irq_handler:
 
 
 1:
+    mov $1, __pf_irq_debugreg(%rip)
     # Restore rflags
     mov __pf_irq_rflags(%rip), %rax
     push %rax
@@ -68,6 +70,8 @@ __pf_irq_handler:
     mov __pf_irq_rbx(%rip), %rbx
     mov __pf_irq_rdx(%rip), %rdx
 
-    # Custom handler
-    iretq
+    # Call Original handler once again but replace with custom one
+    # later
+    jmp *__pf_irq_original_handler_addr(%rip)
+
 
