@@ -144,9 +144,10 @@ void PTE_attacker_config_page_table(void)
 
 int main(int argc, char **argv)
 {
+    __pf_irq_debugreg = 0;
     info_event("Messing around with IDT");
     idt_t idt = {0};
-    ASSERT(!claim_cpu(VICTIM_CPU));
+    ASSERT(!claim_cpu(7));
     ASSERT(!prepare_system_for_benchmark(PSTATE_PCT));
 
     map_idt(&idt);
@@ -181,8 +182,8 @@ int main(int argc, char **argv)
     SGX_ASSERT(page_aligned_func(eid));
 
     register_symbols("./Enclave/encl.so");
-    attacker_config_page_table();
-    // PTE_attacker_config_page_table();
+    // attacker_config_page_table();
+    PTE_attacker_config_page_table();
     register_aep_cb(aep_cb_func);
 
     info_event("calling enclave data page fault..");
