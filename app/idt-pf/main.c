@@ -44,6 +44,8 @@ sgx_enclave_id_t eid = 0;
 void aep_cb_func(void)
 {
     info("Hello world from AEP callback! Resuming enclave..");
+    pte_restore_pages(virt_to_pagenum(data_page), 1);
+    fault_fired++;
     aep_fired++;
 }
 

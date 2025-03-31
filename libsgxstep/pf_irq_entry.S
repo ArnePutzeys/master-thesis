@@ -39,6 +39,9 @@ __pf_irq_handler:
 
 
 1:
+    # Just return without calling a handler, we register the handler 
+    # in the aep callback, just need to signal a pagenumber for example
+
     # SGX bit is set
     # Restore registers
     movq $1, __pf_irq_debugreg(%rip)
@@ -46,10 +49,7 @@ __pf_irq_handler:
     pop %rdx
     pop %rbx
     pop %rax
-
-    # Call Original handler once again but replace with custom one
-    # later
-    jmp *__pf_irq_original_handler_addr(%rip)
-    # iretq
+    add $8, %rsp  # Remove error code from the stack
+    iretq
 
 
