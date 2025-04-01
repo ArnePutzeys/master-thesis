@@ -35,19 +35,13 @@
 #include "libsgxstep/config.h"
 #include "libsgxstep/pt_abstractions.h"
 
+#include "libsgxstep/pf_abstractions.h"
+
 #define DBG_ENCL 1
 
 void *data_pt = NULL, *data_page = NULL, *code_pt = NULL;
 int fault_fired = 0, aep_fired = 0;
 sgx_enclave_id_t eid = 0;
-
-void aep_cb_func(void)
-{
-    info("Hello world from AEP callback! Resuming enclave..");
-    pte_restore_pages(virt_to_pagenum(data_page), 1);
-    fault_fired++;
-    aep_fired++;
-}
 
 void fault_handler(int signo, siginfo_t *si, void *ctx)
 {
@@ -82,25 +76,10 @@ void fault_handler(int signo, siginfo_t *si, void *ctx)
     fault_fired++;
 }
 
-void PTE_fault_handler(int signo, siginfo_t *si, void *ctx)
+void fault_handler_AEP(size_t pagenum)
 {
-
-    ASSERT(fault_fired < 5);
-
-    switch (signo)
-    {
-    case SIGSEGV:
-        info("Caught page fault (base address=%p)", si->si_addr);
-        break;
-
-    default:
-        info("Caught unknown signal '%d'", signo);
-        abort();
-    }
-    pte_restore_pages(virt_to_pagenum(si->si_addr), 1);
-
-    info("Restored access to page %p", si->si_addr);
-    fault_fired++;
+    info("Caught page fault on page %d", pagenum);
+    pte_restore_pages(pagenum, 1);
 }
 
 void attacker_config_page_table(void)
@@ -110,7 +89,7 @@ void attacker_config_page_table(void)
     info("revoking data page access rights..");
     data_pt = get_symbol_offset("array") + get_enclave_base();
     data_page = (void *)((uintptr_t)data_pt & ~PFN_MASK);
-    info("data at %p with PTE:", data_pt);
+    info("data at %p", data_pt);
     ASSERT(!mprotect(data_page, 4096, PROT_NONE));
 
     /* Specify #PF handler with signinfo arguments */
@@ -123,7 +102,7 @@ void attacker_config_page_table(void)
     ASSERT(!sigaction(SIGSEGV, &act, &old_act));
 }
 
-void PTE_attacker_config_page_table(void)
+void attacker_config_page_table_IDT(void)
 {
     struct sigaction act, old_act;
 
@@ -134,43 +113,11 @@ void PTE_attacker_config_page_table(void)
 
     pte_revoke_pages(virt_to_pagenum(data_page), 1);
 
-    /* Specify #PF handler with signinfo arguments */
-    memset(&act, 0, sizeof(sigaction));
-    act.sa_sigaction = PTE_fault_handler;
-    act.sa_flags = SA_RESTART | SA_SIGINFO;
-
-    /* Block all signals while the signal is being handled */
-    sigfillset(&act.sa_mask);
-    ASSERT(!sigaction(SIGSEGV, &act, &old_act));
+    register_fault_handler_IDT(fault_handler_AEP);
 }
 
 int main(int argc, char **argv)
 {
-    __pf_irq_debugreg = 0;
-    info_event("Messing around with IDT");
-    idt_t idt = {0};
-    ASSERT(!claim_cpu(7));
-    ASSERT(!prepare_system_for_benchmark(PSTATE_PCT));
-
-    map_idt(&idt);
-
-    dump_gate(gate_ptr((&idt)->base, 14), 14);
-    void *original_gate_ptr = (void *)gate_offset(gate_ptr((&idt)->base, 14));
-    info("Original Gate at %p", original_gate_ptr);
-
-    // Install the new handler
-    __pf_irq_original_handler_addr = (uint64_t)original_gate_ptr;
-    install_kernel_irq_handler(&idt, __pf_irq_handler, 14);
-
-    info("Original value of debugreg: %d", __pf_irq_debugreg);
-
-    // install_kernel_irq_handler(&idt, __pf_irq_handler, 87);
-
-    // Trigger fault
-    // asm volatile(
-    //     "int $0x57;" // Trigger interrupt 87, for debugging purposes
-    // );
-
     info_event("Creating enclave...");
     sgx_launch_token_t token = {0};
     int retval = 0, updated = 0;
@@ -184,17 +131,14 @@ int main(int argc, char **argv)
     SGX_ASSERT(page_aligned_func(eid));
 
     register_symbols("./Enclave/encl.so");
+
     // attacker_config_page_table();
-    PTE_attacker_config_page_table();
-    register_aep_cb(aep_cb_func);
+    attacker_config_page_table_IDT();
 
     info_event("calling enclave data page fault..");
     SGX_ASSERT(enclave_dummy_call(eid, &retval));
 
-    info("Value of debugreg after #PF: %d", __pf_irq_debugreg);
-
     info("all is well; exiting..");
-    ASSERT(fault_fired && aep_fired);
     SGX_ASSERT(sgx_destroy_enclave(eid));
     return 0;
 }

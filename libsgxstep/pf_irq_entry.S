@@ -1,9 +1,11 @@
 .section isr_section,"awx",@progbits
 .align 0x1000
-.global __pf_irq_original_handler_addr, __pf_irq_debugreg
+.global __pf_irq_original_handler_addr, __pf_irq_debugreg, __pf_irq_faultaddr
 __pf_irq_original_handler_addr:
     .quad 0x0    
 __pf_irq_debugreg:
+    .quad 0x0
+__pf_irq_faultaddr:
     .quad 0x0
 
 .section isr_section,"awx",@progbits
@@ -39,12 +41,19 @@ __pf_irq_handler:
 
 
 1:
-    # Just return without calling a handler, we register the handler 
-    # in the aep callback, just need to signal a pagenumber for example
+    /*
+    We only reach this code whenever the SGX bit is set
 
-    # SGX bit is set
-    # Restore registers
-    movq $1, __pf_irq_debugreg(%rip)
+    Just return without calling a handler, we register the handler 
+    in the aep callback, just need to indicate to the aep callback where the
+    pf occured. Currently doing so via __pf_irq_faultaddr
+    */ 
+
+    # Read the faulting addr (NOT THE SAME AS FAULTING INSTRUCTION ADDR)
+    movq %cr2, %rbx
+    movq %rbx, __pf_irq_faultaddr(%rip)
+
+    # Restore everything and return
     popfq
     pop %rdx
     pop %rbx
