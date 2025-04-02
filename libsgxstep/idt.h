@@ -66,9 +66,4 @@ extern int volatile __ss_irq_fired, __ss_irq_count, __ss_irq_cpl;
 extern uint64_t __ss_irq_rip;
 extern uint64_t nemesis_tsc_aex;
 
-void __pf_irq_handler(void);
-extern uint64_t __pf_irq_original_handler_addr;
-extern uint64_t __pf_irq_debugreg;
-extern uint64_t __pf_irq_faultaddr;
-
 #endif

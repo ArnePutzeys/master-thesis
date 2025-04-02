@@ -3,21 +3,29 @@
 #include "idt.h"
 #include "cpu.h"
 #include "sched.h"
+#include "enclave.h"
+#include "pf_abstractions.h"
+#include "config.h"
 
-fault_handler_t __fault_handler_cb = NULL;
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+
+fault_handler_t __idt_fault_handler_cb = NULL;
 
 void callback_wrapper_func(void)
 {
-    size_t pagenum = virt_to_pagenum((void *)__pf_irq_faultaddr);
-    __fault_handler_cb(pagenum);
+    uint64_t addr = __pf_irq_faultaddr;
+    if (addr)
+    {
+        size_t pagenum = virt_to_pagenum((void *)addr);
+        __pf_irq_faultaddr = 0; // Set it to 0
+        __idt_fault_handler_cb(pagenum);
+    } // There is no pagefault that occured to due the SGX bit having been set
 }
 
 void setup_IDT_entry(void)
 {
-    // For stability purposes, still need to test without
-    ASSERT(!claim_cpu(VICTIM_CPU));
-    ASSERT(!prepare_system_for_benchmark(PSTATE_PCT));
-
     idt_t idt = {0};
     map_idt(&idt);
     void *original_gate_ptr = (void *)gate_offset(gate_ptr((&idt)->base, 14));
@@ -28,6 +36,7 @@ void setup_IDT_entry(void)
 void register_fault_handler_IDT(fault_handler_t cb)
 {
     setup_IDT_entry();
-    __fault_handler_cb = cb;
+
+    __idt_fault_handler_cb = cb;
     register_aep_cb(callback_wrapper_func);
 }

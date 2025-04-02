@@ -38,59 +38,30 @@
 #include "libsgxstep/pf_abstractions.h"
 
 #define DBG_ENCL 1
+#define USE_SIGNAL 0
 
 void *data_pt = NULL, *data_page = NULL, *code_pt = NULL;
 int fault_fired = 0, aep_fired = 0;
 sgx_enclave_id_t eid = 0;
 
+#if USE_SIGNAL
+
 void fault_handler(int signo, siginfo_t *si, void *ctx)
 {
-    ASSERT(fault_fired < 5);
-
-    switch (signo)
-    {
-    case SIGSEGV:
-        info("Caught page fault (base address=%p)", si->si_addr);
-        break;
-
-    default:
-        info("Caught unknown signal '%d'", signo);
-        abort();
-    }
-
-    if (si->si_addr == data_page)
-    {
-        info("Restoring data access rights..");
-        ASSERT(!mprotect(data_page, 4096, PROT_READ | PROT_WRITE));
-    }
-    else if (si->si_addr == code_pt)
-    {
-        info("Restoring code access rights..");
-        ASSERT(!mprotect(code_pt, 4096, PROT_READ | PROT_EXEC));
-    }
-    else
-    {
-        info("Unknown #PF address!");
-    }
-
-    fault_fired++;
-}
-
-void fault_handler_AEP(size_t pagenum)
-{
-    info("Caught page fault on page %d", pagenum);
+    size_t pagenum = virt_to_pagenum(si->si_addr);
     pte_restore_pages(pagenum, 1);
+    // restore_pages(pagenum, 1); // mprotect
 }
 
 void attacker_config_page_table(void)
 {
     struct sigaction act, old_act;
 
-    info("revoking data page access rights..");
     data_pt = get_symbol_offset("array") + get_enclave_base();
     data_page = (void *)((uintptr_t)data_pt & ~PFN_MASK);
-    info("data at %p", data_pt);
-    ASSERT(!mprotect(data_page, 4096, PROT_NONE));
+
+    pte_revoke_pages(virt_to_pagenum(data_page), 1);
+    // revoke_pages(virt_to_pagenum(data_page), 1); // mprotect
 
     /* Specify #PF handler with signinfo arguments */
     memset(&act, 0, sizeof(sigaction));
@@ -102,23 +73,32 @@ void attacker_config_page_table(void)
     ASSERT(!sigaction(SIGSEGV, &act, &old_act));
 }
 
+#else
+
+void fault_handler_IDT(size_t pagenum)
+{
+    pte_restore_pages(pagenum, 1);
+}
+
 void attacker_config_page_table_IDT(void)
 {
-    struct sigaction act, old_act;
 
-    info("revoking data page access rights..");
     data_pt = get_symbol_offset("array") + get_enclave_base();
     data_page = (void *)((uintptr_t)data_pt & ~PFN_MASK);
-    info("data at %p with PTE:", data_pt);
 
     pte_revoke_pages(virt_to_pagenum(data_page), 1);
 
-    register_fault_handler_IDT(fault_handler_AEP);
+    register_fault_handler_IDT(fault_handler_IDT);
 }
+
+#endif
 
 int main(int argc, char **argv)
 {
-    info_event("Creating enclave...");
+    ASSERT(!claim_cpu(VICTIM_CPU));
+    ASSERT(!prepare_system_for_benchmark(PSTATE_PCT));
+
+    //  info_event("Creating enclave...");
     sgx_launch_token_t token = {0};
     int retval = 0, updated = 0;
     char old = 0x00, new = 0xbb;
@@ -126,19 +106,26 @@ int main(int argc, char **argv)
     SGX_ASSERT(sgx_create_enclave("./Enclave/encl.so", /*debug=*/DBG_ENCL,
                                   &token, &updated, &eid, NULL));
 
-    info("Dry run to allocate pages");
+    // info("Dry run to allocate pages");
     SGX_ASSERT(enclave_dummy_call(eid, &retval));
     SGX_ASSERT(page_aligned_func(eid));
 
     register_symbols("./Enclave/encl.so");
 
-    // attacker_config_page_table();
+#if USE_SIGNAL
+    attacker_config_page_table();
+#else
     attacker_config_page_table_IDT();
+#endif
 
-    info_event("calling enclave data page fault..");
+    // info_event("calling enclave data page fault..");
+    uint64_t begin = rdtsc_begin();
     SGX_ASSERT(enclave_dummy_call(eid, &retval));
+    uint64_t end = rdtsc_end();
 
-    info("all is well; exiting..");
+    info("Total attack took %d cycles", end - begin);
+
+    // info("all is well; exiting..");
     SGX_ASSERT(sgx_destroy_enclave(eid));
     return 0;
 }
