@@ -290,8 +290,7 @@ mod sgx {
 
     use super::*;
     use sgx_step::sgx_step_sys::{
-        get_enclave_ssa_gprsgx_adrs, print_enclave_info, pte_restore_pages, pte_revoke_pages,
-        register_enclave_info, register_fault_handler, restore_pages, revoke_pages,
+        claim_cpu, get_enclave_ssa_gprsgx_adrs, prepare_system_for_benchmark, print_enclave_info, pte_restore_pages, pte_revoke_pages, register_enclave_info, register_fault_handler, register_fault_handler_IDT, restore_pages, revoke_pages
     };
     use sgx_urts_sys::{
         sgx_create_enclave, sgx_destroy_enclave, sgx_enclave_id_t, sgx_launch_token_t,
@@ -354,6 +353,7 @@ mod sgx {
     /// Page fault handler
     extern "C" fn fault_handler(page: usize) {
         let mut global = GLOBAL_STATE.get().unwrap().lock().unwrap();
+        // println!("Received page fault on page {page}");
 
         // Transition to the next state
         let prev_state = global.state;
@@ -481,6 +481,8 @@ mod sgx {
             //         null_mut(),
             //     )
             // );
+            claim_cpu(1);
+            prepare_system_for_benchmark(100);
 
             sgx_create_enclave(
                 enclave_so.as_ptr(),
@@ -513,7 +515,8 @@ mod sgx {
 
             if use_fault_handler {
                 // Register a page fault handler
-                register_fault_handler(Some(fault_handler));
+                // register_fault_handler(Some(fault_handler));
+                register_fault_handler_IDT(Some(fault_handler));
                 data.protect_next_pages().unwrap();
             } else {
                 data.use_ocalls = true;
@@ -536,15 +539,15 @@ mod sgx {
             sgx_destroy_enclave(eid);
 
             // Save the reconstructed image
-            // let data = GLOBAL_STATE.get().unwrap().lock().unwrap();
-            // args.raw_output.as_ref().map(|o| {
-            //     std::fs::write(
-            //         o,
-            //         serde_json::to_string_pretty(data.reconstruct.raw_reconstruction()).unwrap(),
-            //     )
-            // });
-            // let image = data.reconstruct.reconstructed_bitmap();
-            // args.output.as_ref().map(|o| image.save(o).unwrap());
+            let data = GLOBAL_STATE.get().unwrap().lock().unwrap();
+            args.raw_output.as_ref().map(|o| {
+                std::fs::write(
+                    o,
+                    serde_json::to_string_pretty(data.reconstruct.raw_reconstruction()).unwrap(),
+                )
+            });
+            let image = data.reconstruct.reconstructed_bitmap();
+            args.output.as_ref().map(|o| image.save(o).unwrap());
 
             // print_enclave_info();
         })
