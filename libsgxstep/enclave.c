@@ -35,8 +35,8 @@ void sgx_set_aep(void *aep);
 void *sgx_get_tcs(void);
 
 /* See aep_trampoline.S to see how these are used. */
-extern void sgx_step_aep_trampoline(void);
-aep_cb_t sgx_step_aep_cb = NULL;
+extern void volatile sgx_step_aep_trampoline(void);
+volatile aep_cb_t sgx_step_aep_cb = NULL;
 uint64_t nemesis_tsc_eresume = 0x0;
 int sgx_step_eresume_cnt = 0;
 int sgx_step_do_trap = 0;
@@ -48,8 +48,15 @@ int fd_self_mem = -1;
 
 void register_aep_cb(aep_cb_t cb)
 {
+    info("Setting AEP CB to %p", cb);
     sgx_set_aep(sgx_step_aep_trampoline);
     sgx_step_aep_cb = cb;
+
+    if (sgx_step_aep_cb != cb)
+    {
+        info("THIS SHOULD NOT HAPPEN");
+    }
+    info("AEP CB SET TO %p", sgx_step_aep_cb);
 }
 
 void register_enclave_info(void)

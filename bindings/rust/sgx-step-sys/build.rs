@@ -7,14 +7,24 @@ fn main() {
 
     #[cfg(feature = "build")]
     {
-        cc::Build::new()
-            .files(
-                glob::glob(&format!("{libsgxstep}/*.c"))
-                    .unwrap()
-                    .filter_map(|e| e.ok()),
-            )
-            .cargo_metadata(true)
-            .compile("sgxstep");
+        let mut build = cc::Build::new();
+
+        for entry in glob::glob(&format!("{libsgxstep}/*.c"))
+            .unwrap()
+            .filter_map(|e| e.ok())
+        {
+            build.file(entry);
+        }
+
+        for entry in glob::glob(&format!("{libsgxstep}/*.S"))
+            .unwrap()
+            .filter_map(|e| e.ok())
+        {
+            build.file(entry);
+        }
+
+        build.cargo_metadata(true).compile("sgxstep");
+
         println!("cargo:rustc-link-lib=elf");
     }
 

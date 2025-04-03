@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-fault_handler_t __idt_fault_handler_cb = NULL;
+volatile fault_handler_t __idt_fault_handler_cb = NULL;
 
 void callback_wrapper_func(void)
 {
@@ -38,5 +38,7 @@ void register_fault_handler_IDT(fault_handler_t cb)
     setup_IDT_entry();
 
     __idt_fault_handler_cb = cb;
+    info("Addr of __idt_fault_handler_cb %p", &__idt_fault_handler_cb);
+    info("Set __idt_fault_handler_cb to %p", (void *)cb);
     register_aep_cb(callback_wrapper_func);
 }
