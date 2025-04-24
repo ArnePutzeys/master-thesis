@@ -132,7 +132,7 @@ int pte_restoreperms_PFN(size_t pagenumber)
 }
 
 // Not used currently
-int pte_removeperms_PRESENT(uint64_t *pte_pointer)
+int pte_removeperms_SUPERVISOR(uint64_t *pte_pointer)
 {
     if (!PRESENT(*pte_pointer))
     {
@@ -144,7 +144,7 @@ int pte_removeperms_PRESENT(uint64_t *pte_pointer)
 }
 
 // Not used currently
-int pte_restoreperms_PRESENT(uint64_t *pte_pointer)
+int pte_restoreperms_SUPERVISOR(uint64_t *pte_pointer)
 {
     if (!PRESENT(*pte_pointer))
     {
