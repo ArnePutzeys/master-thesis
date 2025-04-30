@@ -6,6 +6,7 @@
 #include "libsgxstep/enclave.h"
 #include "libsgxstep/pt_abstractions.h"
 #include "libsgxstep/sched.h"
+#include "libsgxstep/pf_abstractions.h"
 
 /*
 Goal of the benchmark
@@ -86,8 +87,11 @@ int main(int argc, char **argv)
     ASSERT(!claim_cpu(VICTIM_CPU));
     ASSERT(!prepare_system_for_benchmark(PSTATE_PCT));
     // print_system_settings();
+#if USE_CUSTOM_IDT
+    register_fault_handler_IDT(fault_handler);
+#else
     register_fault_handler(fault_handler);
-
+#endif
     void *buff_addrs;
     SGX_ASSERT(ecall_leak_internal_buffer_adrs(eid, &buff_addrs));
 #if DEBUG
