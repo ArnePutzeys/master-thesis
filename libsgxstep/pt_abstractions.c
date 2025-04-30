@@ -8,6 +8,7 @@
 #include <stdbool.h>
 
 #define MAX_PAGES 6000
+#define MAX_PROTECTED_RANGES 16
 
 typedef struct
 {
@@ -16,14 +17,8 @@ typedef struct
 
 } protected_range_t;
 
-// See screenshot on discord w.r.t segments for more information, possibly need to automate this
-// Information comes from /proc/self/maps; segments with just p permission, no RWX
-protected_range_t protected_ranges[] = {
-    {4258, 4274}, // 16 pages 0x7ffff50a2000 - 0x7ffff50b2000 (On specific screenshot/debugger attachment)
-    {4338, 4354}, // Past the end of the libjpeg pages, so should be fine
-};
-
-#define PROTECTED_RANGE_COUNT (sizeof(protected_ranges) / sizeof(protected_ranges[0]))
+protected_range_t protected_ranges[MAX_PROTECTED_RANGES];
+size_t protected_range_count = 0;
 
 static uint64_t *pte_cache[MAX_PAGES] = {NULL};
 static uint8_t shifted_pages[MAX_PAGES] = {0};
@@ -72,7 +67,14 @@ For example: guard pages
 */
 int is_protected_segment(size_t page)
 {
-    for (size_t i = 0; i < PROTECTED_RANGE_COUNT; i++)
+    static int initialized = 0;
+    if (!initialized)
+    {
+        init_protected_ranges();
+        initialized = 1;
+    }
+
+    for (size_t i = 0; i < protected_range_count; i++)
     {
         if (page >= protected_ranges[i].start && page <= protected_ranges[i].end)
             return 1;
@@ -227,4 +229,59 @@ int pte_restore_pages(size_t page, size_t num_pages)
         pte_restoreperms_PFN(page + i);
     }
     return 0; // Success
+}
+
+size_t addr_to_pagenum(void *addr)
+{
+    return (((uintptr_t)addr) - (uintptr_t)get_enclave_base()) / 4096;
+}
+
+// This function parses /proc/self/maps to find segments with ---p permissions and adds those to
+// the internal state to avoid dereferencing them later which would cause a page fault.
+void init_protected_ranges()
+{
+    FILE *maps = fopen("/proc/self/maps", "r");
+    if (!maps)
+    {
+        perror("fopen");
+        exit(EXIT_FAILURE);
+    }
+
+    uint64_t enclave_base = (uint64_t)get_enclave_base();
+    uint64_t enclave_limit = (uint64_t)get_enclave_limit();
+
+    uint64_t start, end;
+    char perms[5];
+    char *line = NULL;
+    size_t len = 0;
+
+    // printf("Registering enclave segments with ---p permissions as protected ranges:\n");
+
+    while (getline(&line, &len, maps) != -1)
+    {
+        if (sscanf(line, "%lx-%lx %4s", &start, &end, perms) != 3)
+            continue;
+
+        if (strcmp(perms, "---p") == 0 &&
+            start >= enclave_base && end <= enclave_limit)
+        {
+            if (protected_range_count >= MAX_PROTECTED_RANGES)
+            {
+                fprintf(stderr, "Exceeded max protected ranges.\n");
+                break;
+            }
+
+            size_t start_page = addr_to_pagenum((void *)start);
+            size_t end_page = addr_to_pagenum((void *)end);
+
+            protected_ranges[protected_range_count].start = start_page;
+            protected_ranges[protected_range_count].end = end_page;
+            protected_range_count++;
+
+            // printf("  { %zu, %zu }, // %lx-%lx %s\n", start_page, end_page, start, end, perms);
+        }
+    }
+
+    free(line);
+    fclose(maps);
 }
