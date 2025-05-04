@@ -290,7 +290,7 @@ mod sgx {
 
     use super::*;
     use sgx_step::sgx_step_sys::{
-        claim_cpu, get_enclave_ssa_gprsgx_adrs, prepare_system_for_benchmark, print_enclave_info, pte_restore_pages, pte_revoke_pages, register_enclave_info, register_fault_handler, register_fault_handler_IDT, restore_pages, revoke_pages
+        claim_cpu, get_enclave_ssa_gprsgx_adrs, prepare_system_for_benchmark, print_enclave_info, pte_restore_pages, pte_revoke_pages, rdtsc_begin, rdtsc_end, register_enclave_info, register_fault_handler, register_fault_handler_IDT, restore_pages, revoke_pages
     };
     use sgx_urts_sys::{
         sgx_create_enclave, sgx_destroy_enclave, sgx_enclave_id_t, sgx_launch_token_t,
@@ -481,8 +481,8 @@ mod sgx {
             //         null_mut(),
             //     )
             // );
-            claim_cpu(1);
-            prepare_system_for_benchmark(100);
+            assert_eq!(claim_cpu(1), 0);
+            assert_eq!(prepare_system_for_benchmark(100), 0);
 
             sgx_create_enclave(
                 enclave_so.as_ptr(),
@@ -527,10 +527,17 @@ mod sgx {
 
             let instant = Instant::now();
 
+            let begin = rdtsc_begin();
+
             // Call vulnerable decompression code
             assert!(decompress_image(eid) == 0);
 
-            println!("Total attack took: {:?}", instant.elapsed());
+            let end = rdtsc_end();
+            let duration_seconds = instant.elapsed();
+
+            let delta = end - begin;
+
+            println!("Total attack took: {:?} cycles, {:?} seconds", delta, duration_seconds);
 
             // Free the image
             assert!(free_image(eid) == 0);

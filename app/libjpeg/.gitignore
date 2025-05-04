@@ -2,3 +2,4 @@
 *.ppm
 *.pbm
 img/*-gray.jpg
+benchmarkresults/
