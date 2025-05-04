@@ -21,7 +21,7 @@ void callback_wrapper_func(void)
         size_t pagenum = virt_to_pagenum((void *)addr);
         __pf_irq_faultaddr = 0; // Set it to 0
         __idt_fault_handler_cb(pagenum);
-    } // There is no pagefault that occured to due the SGX bit having been set
+    } // There is no pagefault that occured due to the SGX bit having been set
 }
 
 void setup_IDT_entry(void)
