@@ -32,7 +32,7 @@
 #define RDMSR_GATE_VECTOR           50
 #define WRMSR_GATE_VECTOR           51
 #define GDT_VECTOR                  13
-
+#define LIBSGXSTEP_SILENT 1
 /*
  * Some recent CPUs with LEGACY_XAPIC_DISABLED only support x2apic mode with
  * SGX. In x2apic mode all APIC configuration needs to go through ring-0
