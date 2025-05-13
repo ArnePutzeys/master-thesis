@@ -1,6 +1,6 @@
 enclave {
 	trusted {
-        public uint64_t ecall_access_alternating_pages(int step);
+        public void ecall_access_sequential_pages(void);
 		public void *ecall_leak_internal_buffer_adrs(void);
 
     };

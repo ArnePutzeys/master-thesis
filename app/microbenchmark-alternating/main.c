@@ -28,6 +28,7 @@ Goal of the benchmark
 
 int benchmark_iteration = 0;
 uint64_t delta;
+uint64_t begin;
 
 sgx_enclave_id_t create_enclave(void)
 {
@@ -50,10 +51,9 @@ void fault_handler(size_t pagenum)
     info("Page fault on page %d:", pagenum);
 #endif
 
-    uint64_t begin = rdtsc_begin();
-
     if (pagenum == BASE)
     {
+        begin = rdtsc_begin();
         for (int i = 0; i < benchmark_iteration; i++)
         {
 #if DEBUG
