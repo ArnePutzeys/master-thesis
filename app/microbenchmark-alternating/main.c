@@ -7,6 +7,7 @@
 #include "libsgxstep/pt_abstractions.h"
 #include "libsgxstep/sched.h"
 #include "libsgxstep/pf_abstractions.h"
+#include "libsgxstep/cpu.h"
 
 /*
 Goal of the benchmark
@@ -26,6 +27,7 @@ Goal of the benchmark
 #include "Enclave/encl_u.h"
 
 int benchmark_iteration = 0;
+uint64_t delta;
 
 sgx_enclave_id_t create_enclave(void)
 {
@@ -47,6 +49,8 @@ void fault_handler(size_t pagenum)
 #if DEBUG
     info("Page fault on page %d:", pagenum);
 #endif
+
+    uint64_t begin = rdtsc_begin();
 
     if (pagenum == BASE)
     {
@@ -71,6 +75,9 @@ void fault_handler(size_t pagenum)
 #else
     pte_restore_pages(pagenum, 1);
 #endif
+    uint64_t end = rdtsc_end();
+
+    delta = end - begin;
 }
 
 int main(int argc, char **argv)
@@ -87,11 +94,8 @@ int main(int argc, char **argv)
     ASSERT(!claim_cpu(VICTIM_CPU));
     ASSERT(!prepare_system_for_benchmark(PSTATE_PCT));
     // print_system_settings();
-#if USE_CUSTOM_IDT
-    register_fault_handler_IDT(fault_handler);
-#else
+
     register_fault_handler(fault_handler);
-#endif
     void *buff_addrs;
     SGX_ASSERT(ecall_leak_internal_buffer_adrs(eid, &buff_addrs));
 #if DEBUG
@@ -100,7 +104,7 @@ int main(int argc, char **argv)
     info_event("Dry run: Calling enclave..");
 #endif
     uint64_t irrelevant_output[N];
-    SGX_ASSERT(ecall_access_alternating_pages(eid, &irrelevant_output[1], STEP));
+    SGX_ASSERT(ecall_access_alternating_pages(eid));
 
     // Dry run: Init state for PTE / mprotect
 #if USE_MPROTECT
@@ -117,7 +121,7 @@ int main(int argc, char **argv)
 #else
     pte_revoke_pages(virt_to_pagenum(buff_addrs), 1);
 #endif
-    SGX_ASSERT(ecall_access_alternating_pages(eid, &irrelevant_output[1], STEP));
+    SGX_ASSERT(ecall_access_alternating_pages(eid));
 
     // -----------------------------------------------------------
     // Actual Benchmark
@@ -129,12 +133,28 @@ int main(int argc, char **argv)
 #if DEBUG
         info_event("Revoking First Page, iteration %d:", benchmark_iteration);
 #endif
+        // Restore access to the pages again
+        for (int i = 0; i < benchmark_iteration; i++)
+        {
+#if DEBUG
+            info("Restoring page %d: ", virt_to_pagenum(buff_addrs) + (i + 1) * STEP);
+#endif
+#if USE_MPROTECT
+            restore_pages(virt_to_pagenum(buff_addrs) + (i + 1) * STEP, 1);
+#else
+            pte_revoke_pages(virt_to_pagenum(buff_addrs) + (i + 1) * STEP, 1);
+
+#endif
+        }
+
+        // Revoke the target page
 #if USE_MPROTECT
         revoke_pages(virt_to_pagenum(buff_addrs), 1);
 #else
         pte_revoke_pages(virt_to_pagenum(buff_addrs), 1);
 #endif
-        SGX_ASSERT(ecall_access_alternating_pages(eid, &output[i], STEP));
+        SGX_ASSERT(ecall_access_alternating_pages(eid));
+        output[i] = delta;
         benchmark_iteration += 1;
     }
 
