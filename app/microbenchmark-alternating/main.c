@@ -11,11 +11,11 @@
 
 /*
 Goal of the benchmark
-1) rdtsc
-2) Pagefault Gets triggered on page 30
+1) Pagefault Gets triggered on page 30
+2) rdtsc in fault handler
 3) Revoke access to x nonsequential pages, with x a parameter
 4) Restore access to page 30
-5) rdtsc
+5) rdtsc in fault handler
 
 */
 
