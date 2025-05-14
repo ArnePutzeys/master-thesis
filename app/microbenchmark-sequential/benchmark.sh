@@ -1,6 +1,6 @@
 #!/bin/bash
 
-num_runs=50000
+num_runs=5000
 
 
 for ((i=1; i<=num_runs; i++)); do
