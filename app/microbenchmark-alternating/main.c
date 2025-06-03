@@ -142,7 +142,7 @@ int main(int argc, char **argv)
 #if USE_MPROTECT
             restore_pages(virt_to_pagenum(buff_addrs) + (i + 1) * STEP, 1);
 #else
-            pte_revoke_pages(virt_to_pagenum(buff_addrs) + (i + 1) * STEP, 1);
+            pte_restore_pages(virt_to_pagenum(buff_addrs) + (i + 1) * STEP, 1);
 
 #endif
         }
