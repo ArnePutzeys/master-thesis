@@ -1,0 +1,100 @@
+Iteration 1 for image muskox_gray.jpg
+Total attack took: 367290005422 cycles, 114.777150684s seconds
+Iteration 2 for image muskox_gray.jpg
+Total attack took: 361430555208 cycles, 112.946096909s seconds
+Iteration 3 for image muskox_gray.jpg
+Total attack took: 360743126550 cycles, 112.731284425s seconds
+Iteration 4 for image muskox_gray.jpg
+Total attack took: 360986509490 cycles, 112.807346394s seconds
+Iteration 5 for image muskox_gray.jpg
+Total attack took: 361132161724 cycles, 112.852867081s seconds
+Iteration 6 for image muskox_gray.jpg
+Total attack took: 361205202014 cycles, 112.875695295s seconds
+Iteration 7 for image muskox_gray.jpg
+Total attack took: 361380403192 cycles, 112.930448327s seconds
+Iteration 8 for image muskox_gray.jpg
+Total attack took: 361893119644 cycles, 113.090673241s seconds
+Iteration 9 for image muskox_gray.jpg
+Total attack took: 361230085598 cycles, 112.883478947s seconds
+Iteration 10 for image muskox_gray.jpg
+Total attack took: 361419324904 cycles, 112.942616864s seconds
+Iteration 1 for image birds-gray.jpg
+Total attack took: 360860166854 cycles, 112.768006546s seconds
+Iteration 2 for image birds-gray.jpg
+Total attack took: 360788267240 cycles, 112.745535571s seconds
+Iteration 3 for image birds-gray.jpg
+Total attack took: 360898423808 cycles, 112.779956858s seconds
+Iteration 4 for image birds-gray.jpg
+Total attack took: 361754817160 cycles, 113.047576569s seconds
+Iteration 5 for image birds-gray.jpg
+Total attack took: 361140742420 cycles, 112.855678366s seconds
+Iteration 6 for image birds-gray.jpg
+Total attack took: 360561140870 cycles, 112.674552837s seconds
+Iteration 7 for image birds-gray.jpg
+Total attack took: 360865644012 cycles, 112.769708679s seconds
+Iteration 8 for image birds-gray.jpg
+Total attack took: 360840715036 cycles, 112.761917533s seconds
+Iteration 9 for image birds-gray.jpg
+Total attack took: 361980179224 cycles, 113.117997129s seconds
+Iteration 10 for image birds-gray.jpg
+Total attack took: 361310114644 cycles, 112.908603122s seconds
+Iteration 1 for image logo-gray.jpg
+Total attack took: 343621703202 cycles, 107.381014142s seconds
+Iteration 2 for image logo-gray.jpg
+Total attack took: 343920328902 cycles, 107.474333123s seconds
+Iteration 3 for image logo-gray.jpg
+Total attack took: 344882866378 cycles, 107.775123706s seconds
+Iteration 4 for image logo-gray.jpg
+Total attack took: 343846001112 cycles, 107.451105718s seconds
+Iteration 5 for image logo-gray.jpg
+Total attack took: 343762371190 cycles, 107.424971435s seconds
+Iteration 6 for image logo-gray.jpg
+Total attack took: 344783807138 cycles, 107.7441679s seconds
+Iteration 7 for image logo-gray.jpg
+Total attack took: 345784476192 cycles, 108.056874544s seconds
+Iteration 8 for image logo-gray.jpg
+Total attack took: 343900455910 cycles, 107.468122246s seconds
+Iteration 9 for image logo-gray.jpg
+Total attack took: 344012016718 cycles, 107.502984545s seconds
+Iteration 10 for image logo-gray.jpg
+Total attack took: 343843307352 cycles, 107.450263284s seconds
+Iteration 1 for image SIGSAC_logo_308-gray.jpg
+Total attack took: 140464015392 cycles, 43.894691715s seconds
+Iteration 2 for image SIGSAC_logo_308-gray.jpg
+Total attack took: 140449095116 cycles, 43.890029001s seconds
+Iteration 3 for image SIGSAC_logo_308-gray.jpg
+Total attack took: 140613246582 cycles, 43.941325864s seconds
+Iteration 4 for image SIGSAC_logo_308-gray.jpg
+Total attack took: 140377030570 cycles, 43.867508956s seconds
+Iteration 5 for image SIGSAC_logo_308-gray.jpg
+Total attack took: 140846438010 cycles, 44.014197535s seconds
+Iteration 6 for image SIGSAC_logo_308-gray.jpg
+Total attack took: 140433551900 cycles, 43.885089443s seconds
+Iteration 7 for image SIGSAC_logo_308-gray.jpg
+Total attack took: 140871835732 cycles, 44.021915716s seconds
+Iteration 8 for image SIGSAC_logo_308-gray.jpg
+Total attack took: 140422936946 cycles, 43.881651894s seconds
+Iteration 9 for image SIGSAC_logo_308-gray.jpg
+Total attack took: 140465834122 cycles, 43.895071315s seconds
+Iteration 10 for image SIGSAC_logo_308-gray.jpg
+Total attack took: 140785299158 cycles, 43.994915978s seconds
+Iteration 1 for image Wapiti_from_Wagon_Trails-gray.jpg
+Total attack took: 620890269082 cycles, 194.026169741s seconds
+Iteration 2 for image Wapiti_from_Wagon_Trails-gray.jpg
+Total attack took: 620619896058 cycles, 193.941839339s seconds
+Iteration 3 for image Wapiti_from_Wagon_Trails-gray.jpg
+Total attack took: 621283266978 cycles, 194.149250274s seconds
+Iteration 4 for image Wapiti_from_Wagon_Trails-gray.jpg
+Total attack took: 621039160844 cycles, 194.073043174s seconds
+Iteration 5 for image Wapiti_from_Wagon_Trails-gray.jpg
+Total attack took: 621481905616 cycles, 194.211450999s seconds
+Iteration 6 for image Wapiti_from_Wagon_Trails-gray.jpg
+Total attack took: 621795490210 cycles, 194.309480751s seconds
+Iteration 7 for image Wapiti_from_Wagon_Trails-gray.jpg
+Total attack took: 620413434158 cycles, 193.877615909s seconds
+Iteration 8 for image Wapiti_from_Wagon_Trails-gray.jpg
+Total attack took: 620725271948 cycles, 193.97508047s seconds
+Iteration 9 for image Wapiti_from_Wagon_Trails-gray.jpg
+Total attack took: 623328682754 cycles, 194.788651521s seconds
+Iteration 10 for image Wapiti_from_Wagon_Trails-gray.jpg
+Total attack took: 638006991890 cycles, 199.375645668s seconds

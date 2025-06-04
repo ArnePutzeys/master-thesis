@@ -1,0 +1,100 @@
+Iteration 1 for image muskox_color.jpg
+Total attack took: 10300878802480 cycles, 3419.005056737s seconds
+Iteration 2 for image muskox_color.jpg
+Total attack took: 10932222558924 cycles, 3416.290960593s seconds
+Iteration 3 for image muskox_color.jpg
+Total attack took: 10941776250774 cycles, 3419.277122101s seconds
+Iteration 4 for image muskox_color.jpg
+Total attack took: 10935475458156 cycles, 3417.311998394s seconds
+Iteration 5 for image muskox_color.jpg
+Total attack took: 10948910850010 cycles, 3421.508928983s seconds
+Iteration 6 for image muskox_color.jpg
+Total attack took: 10942420721122 cycles, 3419.479622625s seconds
+Iteration 7 for image muskox_color.jpg
+Total attack took: 10951834115022 cycles, 3422.424877939s seconds
+Iteration 8 for image muskox_color.jpg
+Total attack took: 10949151847484 cycles, 3421.584069585s seconds
+Iteration 9 for image muskox_color.jpg
+Total attack took: 10962292846452 cycles, 3425.691400664s seconds
+Iteration 10 for image muskox_color.jpg
+Total attack took: 10956473532648 cycles, 3423.873573064s seconds
+Iteration 1 for image birds.jpg
+Total attack took: 6832924426466 cycles, 2135.274099835s seconds
+Iteration 2 for image birds.jpg
+Total attack took: 6820600661786 cycles, 2131.421821886s seconds
+Iteration 3 for image birds.jpg
+Total attack took: 6838983408988 cycles, 2137.16868445s seconds
+Iteration 4 for image birds.jpg
+Total attack took: 6840214434746 cycles, 2137.549562087s seconds
+Iteration 5 for image birds.jpg
+Total attack took: 6845256999520 cycles, 2139.128028168s seconds
+Iteration 6 for image birds.jpg
+Total attack took: 6899828371576 cycles, 2156.182381819s seconds
+Iteration 7 for image birds.jpg
+Total attack took: 6842100891744 cycles, 2138.138811167s seconds
+Iteration 8 for image birds.jpg
+Total attack took: 6836544010276 cycles, 2136.403926856s seconds
+Iteration 9 for image birds.jpg
+Total attack took: 6838165015488 cycles, 2136.912976175s seconds
+Iteration 10 for image birds.jpg
+Total attack took: 6836362239732 cycles, 2136.345852618s seconds
+Iteration 1 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 2 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 3 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 4 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 5 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 6 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 7 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 8 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 9 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 10 for image logo.jpg
+Insufficient memory (case %d)
+Iteration 1 for image SIGSAC_logo_308.jpg
+Total attack took: 1873484764870 cycles, 585.459698977s seconds
+Iteration 2 for image SIGSAC_logo_308.jpg
+Total attack took: 1872080908870 cycles, 585.020988108s seconds
+Iteration 3 for image SIGSAC_logo_308.jpg
+Total attack took: 1869736767560 cycles, 584.288445934s seconds
+Iteration 4 for image SIGSAC_logo_308.jpg
+Total attack took: 1870171343218 cycles, 584.424259093s seconds
+Iteration 5 for image SIGSAC_logo_308.jpg
+Total attack took: 1877446876782 cycles, 586.697847437s seconds
+Iteration 6 for image SIGSAC_logo_308.jpg
+Total attack took: 1868596267284 cycles, 583.932046319s seconds
+Iteration 7 for image SIGSAC_logo_308.jpg
+Total attack took: 1869763969748 cycles, 584.296948978s seconds
+Iteration 8 for image SIGSAC_logo_308.jpg
+Total attack took: 1868997374994 cycles, 584.05711755s seconds
+Iteration 9 for image SIGSAC_logo_308.jpg
+Total attack took: 1874201146786 cycles, 585.683419295s seconds
+Iteration 10 for image SIGSAC_logo_308.jpg
+Total attack took: 1868586704210 cycles, 583.928967136s seconds
+Iteration 1 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 17571436561548 cycles, 5491.034191989s seconds
+Iteration 2 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 17561657340816 cycles, 5487.976785211s seconds
+Iteration 3 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 17545899303438 cycles, 5483.053159861s seconds
+Iteration 4 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 17564118211188 cycles, 5488.746835956s seconds
+Iteration 5 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 17560213181154 cycles, 5487.525008591s seconds
+Iteration 6 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 17566896875428 cycles, 5489.615782309s seconds
+Iteration 7 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 17583238994868 cycles, 5494.719576643s seconds
+Iteration 8 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 17572060364904 cycles, 5491.229694828s seconds
+Iteration 9 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 17835818301444 cycles, 5573.650688578s seconds
+Iteration 10 for image Wapiti_from_Wagon_Trails.jpg
+Total attack took: 17585104291470 cycles, 5495.30457504s seconds
