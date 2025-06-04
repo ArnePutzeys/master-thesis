@@ -1,3 +1,35 @@
+# master thesis Arne Putzeys
+
+### Improved mechanisms:
+Optimized access control to pages (mostly) contained in:
+- `libsgxstep/pt_abstractions.[c/h]`
+
+Optimized fault delivery (mostly) contained in:
+- `libsgxstep/pf_abstractions.[c/h]`
+- `libsgxstep/pf_irq_entry.S`
+
+
+### Benchmarks:
+Libjpeg case study results contained in:
+- `app/libjpeg/attack/benchmarkresults/`
+
+Microbenchmark Section 4.3.1:
+- `app/microbenchmark-alternating/*`
+- `app/microbenchmark-sequential/*`
+
+Microbenchmark Section 4.3.2:
+- `app/microbenchmark-faultpath/*` 
+
+Microbenchmark Section 4.3.3:
+- `app/microbenchmark-entirefaultpathlatency/*`
+
+
+
+
+
+**Original README from the SGX-Step fork for TLBlur below:**
+
+
 # SGX-Step for TLBlur [![DOI](https://zenodo.org/badge/911572938.svg)](https://doi.org/10.5281/zenodo.14645857)
 
 - `app/profiler`: Page access profiler
